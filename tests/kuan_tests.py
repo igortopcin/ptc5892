@@ -37,7 +37,7 @@ def filter(im_orig_array, im_gold_array, window_size, cu, test_index = 1):
 	plt.subplot(132)
 	plt.imshow(im_filtered_array, cmap=plt.cm.gray)
 	plt.axis('off')
-	plt.title('filtered')
+	plt.title('filtered, Cu=%s' % cu)
 
 	# plot the gold standard image
 	plt.figure(test_index * 10 + 1)
@@ -66,16 +66,14 @@ def filter(im_orig_array, im_gold_array, window_size, cu, test_index = 1):
 
 	# Plot the distance transform for the edges in the gold standard image
 	im_gold_dist = distance_transform_edt(np.invert(im_gold_edges))
+	f = fom(im_filtered_array, im_gold_array)
 	plt.figure(test_index * 10 + 2)
 	plt.subplot(133)
 	plt.imshow(im_gold_dist)
 	plt.axis('off')
-	plt.title('dist transf gold')
+	plt.title('dist transf gold,fom=%s' % f)
 
 	plt.show()
-
-	f = fom(im_filtered_array, im_gold_array)
-	print f
 
 def test_image1():
 	# read the image with speckle

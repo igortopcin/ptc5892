@@ -26,8 +26,8 @@ def fom(img, img_gold_std, alpha = DEFAULT_ALPHA):
 
     # To avoid oversmoothing, we apply canny edge detection with very low
     # standard deviation of the Gaussian kernel (sigma = 0.1).
-    edges_img = canny(img, 0.1, 100, 100)
-    edges_gold = canny(img_gold_std, 0.1, 100, 100)
+    edges_img = canny(img, 0.1, 20, 50)
+    edges_gold = canny(img_gold_std, 0.1, 20, 50)
     
     # Compute the distance transform for the gold standard image.
     dist = distance_transform_edt(np.invert(edges_gold))

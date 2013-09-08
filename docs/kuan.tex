@@ -1,0 +1,500 @@
+\documentclass[a4paper,10pt]{article}
+\title{\LaTeX}
+\date{}
+\usepackage{amsmath,amsfonts,amstext,amssymb,amscd,bezier,amsthm}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{amsmath,amsfonts,amscd,bezier,amstext,makeidx}
+\usepackage[brazil]{babel} % para hifenizar em portugues
+\usepackage[latin1]{inputenc} % para acentuar como no word
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+
+\setlength{\evensidemargin}{1cm}
+\setlength{\oddsidemargin}{-1.5cm} \setlength{\textwidth}{18cm}
+\setlength{\textheight}{25cm}
+\setlength{\topmargin}{-2.0cm}
+
+\renewcommand{\thesection}{\Roman{section}.}
+\renewcommand{\thesubsection}{\thesection\alph{subsection}}
+\titleformat*{\section}{\bfseries}
+\titleformat*{\subsection}{\mdseries}
+\pagestyle{empty}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{url}
+\usepackage{hyperref}  
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{verde}{rgb}{0,0.5,0}
+
+\hypersetup{
+  colorlinks=true,        % false: boxed links; true: colored links
+  linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+  citecolor=red,        % color of links to bibliography
+  filecolor=red,      % color of file links
+  urlcolor=red           % color of external links
+}
+
+% Configurando layout para mostrar codigos Python
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small, 
+  keywordstyle=\color{blue}, 
+  stringstyle=\color{verde}, 
+  commentstyle=\color{red}, 
+  extendedchars=true, 
+  showspaces=false, 
+  showstringspaces=false, 
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true, 
+  backgroundcolor=\color{green!10},
+  breakautoindent=true, 
+  captionpos=t,
+  xleftmargin=0pt,
+  caption=\lstname,
+}
+\renewcommand\lstlistingname{Listagem}
+\renewcommand\lstlistlistingname{Listagens}
+
+\begin{document}
+
+\begin{center}
+{\sf {\bf Projeto de Processamento de Imagens Médicas - PTC-5892}}
+\vspace{0.3cm}
+
+\resizebox{!}{0.3cm}{Igor Topcin}
+
+Setembro de 2013
+\vspace{0.3cm}
+
+{\sf {\large \bf Análise e Aplicação do Filtro de Kuan em Imagens com Ruído Speckle}}
+\end{center}
+
+\vspace{0.5cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introdução}
+
+O filtro de Kuan \cite{KUAN} está entre as diversas técnicas propostas na literatura para redução de ruído em imagens. O objetivo deste trabalho é implementar o algoritmo proposto no artigo original, desenvolver uma metodologia de medição da eficácia do filtro, e apresentar os resultados obtidos em imagens produzidas artificialmente.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Filtro de Kuan}
+
+\subsection{Forma Geral}
+
+Kuan é baseado em um modelo estatístico de imagem em que a média e variância são não estacionárias. O modelo de ruído multiplicativo é da forma $g=f+f(n-1)$, que na realidade é derivação da forma aditiva $g=f+n$, onde $g$ é o sinal da imagem observada, $f$ é o sinal original e $n$ é o ruído. A partir do modelo estatístico e do ruído multiplicativo, os autores desenvolveram a estimação linear do erro quadrático médio (EQM) mínimo, expressa da seguinte forma geral:
+
+\begin{eqnarray} \label{eq:llmmsq}
+\hat{f}(i,j)=\bar{f}(i,j)+\frac{v_{f}(i,j)}{v_{f}(i,j)+\sigma_{n}^{2}(i,j)}(g(i,j)-\bar{g}(i,j))
+\end{eqnarray}
+
+O artigo mostra que localmente $\bar{f}=\bar{g}$. As estatísticas locais $\bar{g}(i,j)$, $v_{g}(i,j)$ e $v_{f}(i,j)$ de uma janela de tamanho $(2r+1)(2s+1)$ são dadas por:
+
+\begin{eqnarray}
+\bar{g}(i,j)=\frac{1}{(2r+1)(2s+1)}\sum_{p=i-r}^{i+r}\sum_{q=j-s}^{j+s}g(p,q)
+\end{eqnarray}
+
+\begin{eqnarray}
+v_{g}(i,j)=\frac{1}{(2r+1)(2s+1)}\sum_{p=i-r}^{i+r}\sum_{q=j-s}^{j+s}(g(p,q)-\bar{g}(i,j))^{2}
+\end{eqnarray}
+
+\begin{eqnarray}
+v_{f}(i,j)=v_{g}(i,j)-\sigma_{n}^{2}(i,j)
+\end{eqnarray}
+
+\subsection{Filtro de Kuan para Ruídos Multiplicativos}
+
+A equação geral para o filtro foi mostrada em \ref{eq:llmmsq}, porém para ruídos multiplicativos a estimação $\hat{f}$ é representada da seguinte forma:
+
+\begin{eqnarray} \label{eq:llmmsemult}
+\hat{f}(i,j)=\bar{f}(i,j)+\frac{v_{f}(i,j)}{v_{f}(i,j)+\frac{\sigma_{u}^{2}}{E(u)}[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}(g(i,j)-\bar{f}(i,j))
+\end{eqnarray}
+
+Aqui, $u$ é o ruido multiplicativo cuja média e variância são estacionárias. Com $v_{f}$ dada por:
+
+\begin{eqnarray} \label{eq:llmmsemult_v}
+v_{f}(i,j)=\frac{\sigma_{g}^{2}(i,j)-\frac{\sigma_{u}^{2}}{E(u)^{2}}E(g(i,j))^{2}}{1+\frac{\sigma_{u}^{2}}{E(u)^{2}}}
+\end{eqnarray}
+
+Podemos também reescrever a equação \ref{eq:llmmsemult} da seguinte forma:
+
+\begin{eqnarray}
+\hat{f}(i,j)=\bar{f}(i,j)+w(i,j)(g(i,j)-\bar{f}(i,j)) \nonumber
+\end{eqnarray}
+
+\begin{eqnarray} \label{eq:filtro_final}
+\Rightarrow \hat{f}(i,j)=w(i,j)g(i,j)+\bar{f}(1-w(i,j))
+\end{eqnarray}
+
+Sendo $w(i,j)$ definida por:
+
+\begin{eqnarray} \label{eq:llmmsemult_w}
+w(i,j)=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}
+\end{eqnarray}
+
+$C_u$ é o coeficiente de variação do ruído, que aqui assumimos ser estacionário, e portanto pode ser facilmente estimado com o cálculo da seguinte equação em uma região homogênea da imagem:
+
+\begin{eqnarray}
+C_u=\frac{\sigma_{u}^{2}}{E(u)}
+\end{eqnarray}
+
+Sendo assim, podemos reescrever \ref{eq:llmmsemult_v} substituindo $\frac{\sigma_{u}^{2}}{E(u)}$ por $C_u$:
+
+\begin{eqnarray} \label{eq:llmmsemult_v2}
+v_{f}(i,j)=\frac{\sigma_{g}^{2}(i,j)-C_uE(g(i,j))^{2}}{1+C_u} \nonumber \\
+=\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u} 
+\end{eqnarray}
+
+Substituindo \ref{eq:llmmsemult_v2} em \ref{eq:llmmsemult_w} e assumindo $\bar{f}=\bar{g}$ teremos:
+
+\begin{eqnarray} \label{eq:llmmsemult_w2}
+w(i,j)=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}
+=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u(\bar{g}(i,j))^{2}+C_uv_{f}(i,j)} \nonumber \\
+=[\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u}] . [\frac{1}{\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u}(1+C_u)+C_u(\bar{g}(i,j))^{2}}] \nonumber\\
+=[\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u}] . [\frac{1}{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}+C_u(\bar{g}(i,j))^{2}}] \nonumber \\
+=\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{(1+C_u)\sigma_{g}^{2}(i,j)} \nonumber
+=\frac{\sigma_{g}^{2}(i,j)}{(1+C_u)\sigma_{g}^{2}(i,j)} - \frac{C_u(\bar{g}(i,j))^{2}}{(1+C_u)\sigma_{g}^{2}(i,j)} \nonumber \\
+=\frac{1}{1+C_u} - \frac{C_u(\frac{\bar{g}(i,j)}{\sigma_{g}})^{2}}{1+C_u} \nonumber \\
+=\frac{1 - C_u(\frac{\bar{g}(i,j)}{\sigma_{g}})^{2}}{1+C_u}
+\end{eqnarray}
+
+Fazendo $C_i(i,j)=\frac{\sigma_x(i,j)}{\bar{g}(i,j))}$ e substituindo em \ref{eq:llmmsemult_w2}, temos:
+
+\begin{eqnarray} \label{eq:weight_final}
+w(i,j)=\frac{1-\frac{C_u}{C_i}}{1+C_u}
+\end{eqnarray}
+
+\section{Implementação e Testes}
+
+\subsection{Implementação}
+
+Usamos Python e algumas bibliotecas científicas como IPython \cite{IPYTHON}, SciPy \cite{SCIPY} e NumPy \cite{NUMPY} em todos os algoritmos e testes.
+
+Para o filtro de Kuan, foram implementadas as equações \ref{eq:filtro_final} e \ref{eq:weight_final}. O algoritmo para cálculo de $w(i,j)$ é apresentado na listagem abaixo:
+\begin{lstlisting}[caption={método \textit{weight} de kuan.py},label={lst:weight}]
+def weight(window, cu):
+    ci = variation(window)
+    ci_2 = ci * ci
+    cu_2 = cu * cu
+
+    if cu_2 > ci_2:
+        w = 0.0
+    else:
+        w = (1.0 - (cu_2 / ci_2)) / (1.0 + cu_2)
+
+    return w
+\end{lstlisting} 
+
+E a listagem a seguir mostra o algoritmo do filtro de Kuan:
+
+\begin{lstlisting}[caption={método \textit{filter} de kuan.py},label={lst:filter}]
+def filter(img, window_size, cu):
+    img = np.float64(img)
+    img_filtered = np.zeros_like(img)
+
+    N, M = img.shape
+    win_offset = window_size / 2
+
+    for i in xrange(0, N):
+        xleft = i - win_offset
+        xright = i + win_offset
+        # (...)
+        
+        for j in xrange(0, M):
+            yup = j - win_offset
+            ydown = j + win_offset
+            # (...)
+
+            window = img[xleft:xright, yup:ydown]
+            w = weight(window, cu)
+            img_filtered[i, j] = round((img[i, j] * w) + (window.mean() * (1.0 - w)))
+
+    return img_filtered
+\end{lstlisting}
+
+Algumas partes do código foram omitidas para manter a clareza. O código pode ser consultado na íntegra em \url{http://github.com/igortopcin/ptc5892}.
+
+\subsection{Medição da Eficácia}
+\label{sec:eficacia}
+
+Como Kuan é um filtro adaptativo, espera-se que ele se comporte como um filtro de média nas regiões homogêneas da imagem, e um filtro identidade nas bordas. Por esse motivo foram usados dois critérios para a medição da eficácia do filtro implementado. Em cada teste, quantificamos a preservação da média e a redução do desvio padrão em regiões homogêneas. Além desse critério, também quantificamos a preservação das bordas da imagem usando Pratt's \textit{Figure of Merit} (\textit{FOM}) \cite{PRATT}, também usado por Yu \textit{et al.} para medir e comparar o desempenho do filtro SRAD PDE \cite{YU}.
+
+A equação que define o \textit{FOM} é dada por:
+\begin{eqnarray} \label{eq:weight_final}
+FOM=\frac{1}{max\{\hat{N},N_{ideal}\}} \sum_{i=1}^{\hat{N}}\frac{1}{1+d_i^2\alpha}
+\end{eqnarray}
+
+Onde $\hat{N}$ é o número de \textit{pixels} de borda detectados, $N_{ideal}$ é o número de \textit{pixels} de borda do nosso \textit{padrão ouro}, $d_i$ é a distância euclideana entre o \textit{i}-ésimo \textit{pixel} de borda detectado e o mais próximo \textit{pixel} de borda do \textit{padrão ouro}.
+
+Assim como Yu, usamos o detector de bordas Canny \cite{CANNY} em nossa implementação do \textit{FOM}, mostrado na listagem \ref{lst:fom}. Para evitar que Canny suavize demasiadamente a imagem, usamos desvio padrão $\sigma=0,1$.
+
+Na prática, o valor do \textit{FOM} pode variar de 0 a 1, sendo 1 o valor para o \textit{padrão ouro}.
+
+\begin{lstlisting}[caption={fom.py},label={lst:fom}]
+def fom(img, img_gold_std, alpha = DEFAULT_ALPHA):
+    edges_img = canny(img, 0.1)
+    edges_gold = canny(img_gold_std, 0.1)
+    
+    dist = distance_transform_edt(np.invert(edges_gold))
+
+    fom = 1.0 / np.maximum(
+        np.count_nonzero(edges_img),
+        np.count_nonzero(edges_gold))
+
+    N, M = img.shape
+
+    for i in xrange(0, N):
+        for j in xrange(0, M):
+            if edges_img[i, j]:
+                fom += 1.0 / ( 1.0 + dist[i, j] * dist[i, j] * alpha)
+
+    fom /= np.maximum(
+        np.count_nonzero(edges_img),
+        np.count_nonzero(edges_gold))    
+
+    return fom
+\end{lstlisting}
+
+\subsection{Imagens de Teste}
+
+Aplicou-se um ruído \textit{speckle} às imagens \ref{fig:test1_gold} e \ref{fig:test3_gold}, e um ruído Gaussiano à imagem \ref{fig:test2_gold}. As imagens com esses ruídos são \ref{fig:test1_orig}, \ref{fig:test2_orig} e \ref{fig:test3_orig}, que foram em seguida submetidas ao filtro de Kuan. Os testes do filtro resultaram nas imagens \ref{fig:test1_filtered}, \ref{fig:test2_filtered} e \ref{fig:test3_filtered}.
+
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_gold.png}
+		\caption{Padrão ouro}
+		\label{fig:test1_gold}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_orig.png}
+		\caption{Ruído \textit{speckle}}
+		\label{fig:test1_orig}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_filtered.png}
+		\caption{Filtrada}
+		\label{fig:test1_filtered}
+	\end{subfigure}
+	\caption{Imagem de teste 1, com figuras geométricas e ruído do tipo \textit{speckle}}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_gold.png}
+		\caption{Padrão ouro}
+		\label{fig:test2_gold}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_orig.png}
+		\caption{Ruído Gaussiano}
+		\label{fig:test2_orig}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_filtered.png}
+		\caption{Filtrada}
+		\label{fig:test2_filtered}
+	\end{subfigure}
+	\caption{Imagem de teste 2, com cistos e ruído do tipo Gaussiano de 10dB}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_gold.png}
+		\caption{Padrão ouro}
+		\label{fig:test3_gold}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_orig.png}
+		\caption{Ruído \textit{speckle}}
+		\label{fig:test3_orig}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_filtered.png}
+		\caption{Filtrada}
+		\label{fig:test3_filtered}
+	\end{subfigure}
+	\caption{Imagem de teste 3, com cistos e ruído do tipo \textit{speckle}}
+\end{figure}
+
+\section{Resultados}
+
+\subsection{Média e Desvio Padrão}
+
+Escolhemos arbitrariamente duas áreas homogêneas de cada uma das 3 imagens de teste. Para cada área, comparamos sua média e desvio padrão na imagem original e filtrada. Os resultados são mostrados na tabela \ref{tab:media}.
+Repare que em todas as áreas, exceto na área II da imagem \ref{fig:test2_filtered}, a média local sofreu leves alterações, enquanto que o desvio padrão diminuiu acentuadamente. Já na área II da imagem \ref{fig:test2_filtered}, a média e desvio padrão permaneceram quase inalterados. Isso também pode ser percebido visualmente nas imagens \ref{fig:test2_orig} e \ref{fig:test2_filtered}. A área II é o cisto mais escuro, no topo da imagem. Veja que o ruído nessa área da imagem permaneceu quase o mesmo após a filtragem. Isso se deve à escolha do $C_u$ usado no filtro de Kuan, que difere muito do $C_i$ da área II.
+
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{cl|c|ccc|ccc}
+\hline
+\multicolumn{2}{c|}{Imagem} & $C_u$ & \multicolumn{3}{c|}{Área I}   & \multicolumn{3}{|c}{Área II} \\
+\multicolumn{2}{c|}{ }      &  { }  & Média & Desvio Padrão & $C_i$ & Média & Desvio Padrão & $C_i$ \\
+\hline
+\hline
+\ref{fig:test1_orig}     & com ruído & \multirow{2}{*}{0,090} & 77,10 & 10,23 & 0,133 & 110,78 & 10,21 & 0,092 \\
+\ref{fig:test1_filtered} & filtrada  &          { }           & 72,07 & 6,63  & 0,092 & 107,87 & 4,40  & 0,041  \\
+\hline
+\hline
+\ref{fig:test2_orig}     & com ruído & \multirow{2}{*}{0,045} & 96,99 & 3,80 & 0,039 & 19,79 & 3,87 & 0,195 \\
+\ref{fig:test2_filtered} & filtrada  &          { }           & 97,70 & 0,92 & 0,009 & 19,73 & 3,79 & 0,192 \\
+\hline
+\hline
+\ref{fig:test3_orig}     & com ruído & \multirow{2}{*}{0,200} & 87,92 & 20,17 & 0,229 & 138,11 & 16,24 & 0,118 \\
+\ref{fig:test3_filtered} & filtrada  &          { }           & 95,32 & 12,84 & 0,135 & 149,30 & 10,61 & 0,071 \\
+\hline
+\hline
+\end{tabular}
+\caption{Média e desvio padrão antes e após o filtro de Kuan}
+\label{tab:media}
+\end{center}
+\end{table}
+
+\subsection{Preservação das Bordas}
+
+Na seção \ref{sec:eficacia}, \nameref{sec:eficacia}, apresentamos o \textit{FOM} de Pratt como o método escolhido para quantificar o critério de preservação das bordas da imagem. As figuras \ref{fig:test1_edges}  e \ref{fig:test23_edges} mostram como o filtro de Kuan se comporta com relação a esse critério.
+
+Repare que as imagens \ref{fig:test1_orig_edges} e \ref{fig:test3_orig_edges} se aproximam muito mais do padrão ouro que \ref{fig:test2_orig_edges}.
+
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_orig_edges.png}
+		\caption{ }
+		\label{fig:test1_orig_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_gold_edges.png}
+		\caption{ }
+		\label{fig:test1_gold_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_gold_dist.png}
+		\caption{ }
+		\label{fig:test1_gold_dist}
+	\end{subfigure}
+	\caption{Teste 1; (a) e (b) são resultados do detector de bordas Canny aplicado à imagem filtrada e padrão ouro, respectivamente. (c) é a transformada da distância de (b), usada no cálculo do \textit{FOM} }
+	\label{fig:test1_edges}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_orig_edges.png}
+		\caption{ }
+		\label{fig:test2_orig_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_orig_edges.png}
+		\caption{ }
+		\label{fig:test3_orig_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_gold_edges.png}
+		\caption{ }
+		\label{fig:test2_gold_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_gold_dist.png}
+		\caption{ }
+		\label{fig:test2_gold_dist}
+	\end{subfigure}
+	\caption{Testes 2 e 3; (a) e (b) são resultados do detector de bordas Canny aplicado às imagens filtradas \ref{fig:test2_filtered} e \ref{fig:test3_filtered}, respectivamente. (c) é Canny aplicado ao padrão ouro de ambos os testes. (d) é a transformada da distância de (c), usada no cálculo do \textit{FOM}}
+	\label{fig:test23_edges}
+\end{figure}
+
+A tabela \ref{tab:fom} apresenta os valores do \textit{FOM} antes e após a filtragem com o algoritmo de Kuan. A imagem de teste 2, com ruído Gaussiano, teve o melhor resultado. A imagem do teste 3, com maior nível de ruído \textit{speckle}, teve o pior resultado.
+
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{c|c|c}
+\hline
+Imagem & \textit{FOM} com ruído & \textit{FOM} filtrada \\
+\hline
+\hline
+Teste 1 & 0.1766 & 0.3481 \\ \hline
+Teste 2 & 0.0430 & 0.4453 \\ \hline
+Teste 3 & 0.0462 & 0.0735 \\ \hline
+\end{tabular}
+\caption{Valores do \textit{FOM} antes e após a filtragem}
+\label{tab:fom}
+\end{center}
+\end{table}
+
+\vspace{0.5cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusões}
+
+Neste trabalho conseguimos mostrar a viabilidade da implementação do filtro de Kuan para imagens com ruído multiplicativo. Também mostramos dois critérios de quantificação da eficácia do algoritmo, que permitem avaliar seu desempenho em regiões homogêneas e nas bordas da imagem. Tais critérios também foram implementados e publicados para livre uso em fins científicos ou comerciais.
+
+Após a discussão sobre a implementação do filtro e os critérios de avaliação de desempenho, conduzimos 3 experimentos em imagens produzidas artificialmente, e apresentamos os resultados qualitativos e quantitativos de cada um deles. Algumas conclusões que merecem destaque são:
+
+\begin{itemize}
+  \item A escolha de um bom valor de $C_u$ é fundamental.
+  \item Conhecer o tipo de ruído é essencial para obter resultados ótimos.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+\begin{thebibliography}{}
+ 
+\bibitem{KUAN}
+D. T. Kuan, A. A. Sawchuk, T. C. Strand, P. Chavel, {\em Adaptive Noise Smoothing Filter for Images with Signal-Dependent Noise}, IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol. 7, No. 2, (1985)
+ 
+\bibitem{PRATT}
+W. K. Pratt, {\em Digital Image Processing}, Nova Iorque, Wiley, (1977)
+
+\bibitem{YU}
+Y. Yu and S. T. Acton, {\em Speckle Reducing Anisotropic Diffusion}, IEEE Transactions on Image Processing, Vol. 11, No. 11, (2002)
+
+\bibitem{IPYTHON}
+F. Pérez, B. E. Granger, {\em IPython: A System for Interactive Scientific Computing}, Computing in Science and Engineering, Vol. 9, No. 3, (2007)
+
+\bibitem{SCIPY}
+E. Jones, T. Oliphant, P. Peterson \textit{et al.}, {\em SciPy: Open Source Scientific Tools for Python}, (2001)
+
+\bibitem{NUMPY}
+T. Oliphant \textit{et al.}, {\em Python for Scientific Computing}, Computing in Science and Engineering, Vol. 9, No. 3, (2007)
+
+\bibitem{CANNY}
+J. Canny, {\em A computational approach to edge detection}, IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol. 8, (1986)
+
+\end{thebibliography}
+ 
+\end{document}
