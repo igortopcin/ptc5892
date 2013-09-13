@@ -1,0 +1,649 @@
+% slides-exemplo-beamer
+%
+% Sáb Out  1 19:47:43 BRT 2011
+
+\documentclass[table, usenames, svgnames, dvipsnames]{beamer}
+\usepackage{beamerthemeshadow}
+\usepackage[portuguese]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{array}
+
+%\usepackage{subfigure}
+%\usepackage{multicol}
+%\usepackage{colortbl}
+
+% ---------------------------------------------------------------------------- %
+% Definições beamer
+% ---------------------------------------------------------------------------- %
+\usetheme{Rochester}
+%\usetheme{Luebeck}
+\usecolortheme{rose}
+
+% Algumas definições para o layout
+\setbeamerfont{frametitle}{size=\normalsize}
+\setbeamerfont{title}{size=\normalsize}
+\beamertemplatenavigationsymbolsempty
+
+% Podem ser utilizadas imagens no background
+%\setbeamercolor{frametitle}{bg=black}
+%\usebackgroundtemplate{\includegraphics[height=\paperheight]{figuras/back.jpg}}
+
+% Os simbolos de navegacao nao sao necessarios
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{}
+
+%\setbeamertemplate{footline}[page number]{}
+%\setbeamertemplate{footline}[text line]{ \hfill {\insertframenumber}}
+
+% Indice para cada seção (aparece antes de cada section)
+\AtBeginSection[] 
+{
+	\begin{frame}<handout:0>
+		\frametitle{\textbf{Agenda}}
+		\footnotesize{ \tableofcontents[currentsection,hideothersubsections] }
+	\end{frame}
+}
+
+% ---------------------------------------------------------------------------- %
+% Declarações
+% ---------------------------------------------------------------------------- %
+\DeclareGraphicsExtensions{.pdf,.jpg,.png} % compilamos apenas com pdflatex
+\graphicspath{{./figuras/}} % caminho onde as figuras estarao disponiveis
+
+% Logotipo no canto superior direito
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
+\newcommand{\MyLogo}{%
+\begin{textblock}{}(118.5, 2.5)
+	\includegraphics[width=0.7cm]{ime-mod2.png}
+\end{textblock}
+}
+
+% semitransparente
+\newcommand{\semitransp}[2][35]{\color{fg!#1}#2}
+
+% \definecolor{myred}{rgb}{0.8, 0.3, 0.3}
+\definecolor{myblue}{rgb}{0.2, 0.2, 0.70196}
+
+\usepackage{framed} % utilizado para codigo fonte
+\definecolor{shadecolor}{named}{LightGray} 
+
+
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+
+% ---------------------------------------------------------------------------- %
+% Título
+% ---------------------------------------------------------------------------- %
+\title{\textbf{Análise e Aplicação do Filtro de Kuan em Imagens com Ruído Speckle}}
+
+\author[Igor Topcin]{\scriptsize
+    Igor Topcin\\
+    topcin@ime.usp.br
+}
+
+\subtitle{Projeto de Processamento de Imagens Médicas - PTC-5892}
+
+\institute{\\[1.0mm] 
+Escola Politécnica \textit{e}\\
+Instituto de Matemática e Estatística\\
+Universidade de São Paulo}
+
+\date{{\tiny Setembro de 2013}}
+
+
+% ---------------------------------------------------------------------------- %
+\begin{document}
+% ---------------------------------------------------------------------------- %
+
+% ---------------------------------------------------------------------------- %
+% Primeira página: slide 0
+% ---------------------------------------------------------------------------- %
+
+{%\usebackgroundtemplate{}} 
+\begin{frame}[plain]
+
+	\begin{columns}[c]
+		\column{0.2\textwidth}
+			\hspace*{+0.5em}
+			\includegraphics[height=7.90cm]{rede.jpg}
+		\column{0.01\textwidth}
+		\column{0.70\textwidth}
+			\titlepage
+	\end{columns}
+	\addtocounter{framenumber}{-1}
+\end{frame}
+}
+
+
+% ---------------------------------------------------------------------------- %
+% slide 1 >
+% ---------------------------------------------------------------------------- %
+\setbeamertemplate{footline}{\hrule \MyLogo } %\hfill\includegraphics[height=1.2cm]{figuras/olho1.png}}
+%\setbeamertemplate{footline}{\hfill\includegraphics[height=1.2cm]{figuras/olho1.png}}
+\setbeamertemplate{navigation symbols}{\large {\insertframenumber}}
+
+% ---------------------------------------------------------------------------- %
+\begin{frame}[plain]
+\frametitle{}
+	\begin{block}{Objetivos}
+		\begin{enumerate}
+			\item Apresentar o filtro de Kuan
+			\item Implementar o filtro
+			\item Propor metodologia de medição de eficácia
+			\item Apresentar resultados dos experimentos
+	\end{enumerate}
+	\end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+\begin{frame}
+\frametitle{\textbf{Agenda}}
+
+	\hspace*{+4.0em}
+	\footnotesize{ \tableofcontents }
+\end{frame}
+
+
+% ---------------------------------------------------------------------------- %
+\section{Introdução}
+% ---------------------------------------------------------------------------- %
+
+\begin{frame} 
+\frametitle{\textbf{Introdução}}
+
+O filtro de Kuan \cite{KUAN} está entre as diversas técnicas propostas na literatura para redução de ruído em imagens. 
+
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+\section{Filtro de Kuan}
+% ---------------------------------------------------------------------------- %
+
+% ---------------------------------------------------------------------------- %
+\subsection{Forma Geral}
+% ---------------------------------------------------------------------------- %
+
+\begin{frame} 
+\frametitle{\textbf{Forma Geral}}
+
+	\begin{itemize}
+		\item \textbf{Modelo estatístico}: média e variância são não estacionárias.
+		\item \textbf{Modelo de ruído}: multiplicativo.
+	\end{itemize}
+
+	\begin{eqnarray}
+	g=f+n \longrightarrow g=f+f(n-1)
+	\end{eqnarray}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Forma Geral}}
+
+	\begin{itemize}
+		\item Estimação linear do EQM mínimo:
+
+		\begin{eqnarray} \label{eq:llmmsq}
+		\hat{f}(i,j)=\bar{f}(i,j)+\frac{v_{f}(i,j)}{v_{f}(i,j)+\sigma_{n}^{2}(i,j)}(g(i,j)-\bar{g}(i,j))
+		\end{eqnarray}
+
+		\item localmente: $\bar{f}=\bar{g}$
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Forma Geral}}
+
+	\begin{eqnarray}
+	\bar{g}(i,j)=\frac{1}{(2r+1)(2s+1)}\sum_{p=i-r}^{i+r}\sum_{q=j-s}^{j+s}g(p,q)
+	\end{eqnarray}
+
+	\begin{eqnarray}
+	v_{g}(i,j)=\frac{1}{(2r+1)(2s+1)}\sum_{p=i-r}^{i+r}\sum_{q=j-s}^{j+s}(g(p,q)-\bar{g}(i,j))^{2}
+	\end{eqnarray}
+
+	\begin{eqnarray}
+	v_{f}(i,j)=v_{g}(i,j)-\sigma_{n}^{2}(i,j)
+	\end{eqnarray}
+
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+\subsection{Para Ruídos Multiplicativos}
+% ---------------------------------------------------------------------------- %
+
+\begin{frame} 
+\frametitle{\textbf{Para Ruídos Multiplicativos}}
+
+	\begin{itemize}
+		\item Equação geral é \ref{eq:llmmsq}, porém para ruídos multiplicativos:
+
+		\begin{eqnarray} \label{eq:llmmsemult}
+		\hat{f}(i,j)=\bar{f}(i,j)+\frac{v_{f}(i,j)(g(i,j)-\bar{f}(i,j))}{v_{f}(i,j)+\frac{\sigma_{u}^{2}}{E(u)}[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}
+		\end{eqnarray}
+
+		\item $u$: média e variância estacionárias.
+		
+		\begin{eqnarray} \label{eq:llmmsemult_v}
+		v_{f}(i,j)=\frac{\sigma_{g}^{2}(i,j)-\frac{\sigma_{u}^{2}}{E(u)^{2}}E(g(i,j))^{2}}{1+\frac{\sigma_{u}^{2}}{E(u)^{2}}}
+		\end{eqnarray}
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Para Ruídos Multiplicativos}}
+
+	\begin{itemize}
+		\item Reescrevendo \ref{eq:llmmsemult}:
+
+		\begin{eqnarray}
+		\hat{f}(i,j)=\bar{f}(i,j)+w(i,j)(g(i,j)-\bar{f}(i,j)) \nonumber
+		\end{eqnarray}
+
+		\begin{eqnarray} \label{eq:filtro_final}
+		\Rightarrow \hat{f}(i,j)=w(i,j)g(i,j)+\bar{f}(1-w(i,j))
+		\end{eqnarray}
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Para Ruídos Multiplicativos}}
+
+	\begin{itemize}
+		\item com $w(i,j)$:
+
+		\begin{eqnarray} \label{eq:llmmsemult_w}
+		w(i,j)=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}
+		\end{eqnarray}
+
+		\item $C_u$: coeficiente de variação do ruído:
+
+		\begin{eqnarray}
+		C_u=\frac{\sigma_{u}^{2}}{E(u)}
+		\end{eqnarray}
+
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Para Ruídos Multiplicativos}}
+
+	\begin{itemize}
+		\item Reescrevendo \ref{eq:llmmsemult_v}
+
+		\begin{eqnarray} \label{eq:llmmsemult_v2}
+		v_{f}(i,j)=\frac{\sigma_{g}^{2}(i,j)-C_uE(g(i,j))^{2}}{1+C_u} \nonumber \\
+		=\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u} 
+		\end{eqnarray}
+
+		\item Substituindo \ref{eq:llmmsemult_v2} em \ref{eq:llmmsemult_w} e assumindo $\bar{f}=\bar{g}$:
+
+		\begin{eqnarray} \label{eq:llmmsemult_w2}
+		w(i,j)=\frac{1 - C_u(\frac{\bar{g}(i,j)}{\sigma_{g}})^{2}}{1+C_u}
+		\end{eqnarray}
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Para Ruídos Multiplicativos}}
+
+	\begin{itemize}
+		\item Reescrevendo \ref{eq:llmmsemult_w2} com $C_i(i,j)=\frac{\sigma_x(i,j)}{\bar{g}(i,j))}$:
+
+		\begin{eqnarray} \label{eq:weight_final}
+		w(i,j)=\frac{1-\frac{C_u}{C_i}}{1+C_u}
+		\end{eqnarray}
+
+	\end{itemize}
+
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+\section{Implementação e Testes}
+% ---------------------------------------------------------------------------- %
+
+% ---------------------------------------------------------------------------- %
+\subsection{Implementação}
+% ---------------------------------------------------------------------------- %
+
+\begin{frame} 
+\frametitle{\textbf{Implementação}}
+
+	\begin{itemize}
+		\item \textbf{Python}, IPython \cite{IPYTHON}, SciPy \cite{SCIPY} e NumPy \cite{NUMPY}
+
+		\item Filtro de Kuan: equações \ref{eq:filtro_final} e \ref{eq:weight_final}
+		
+		\item Código fonte: \url{http://github.com/igortopcin/ptc5892}.
+	\end{itemize}
+	
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+\subsection{Medição da Eficácia}
+% ---------------------------------------------------------------------------- %
+
+\begin{frame} 
+\frametitle{\textbf{Medição da Eficácia}}
+
+	\begin{itemize}
+		\item \textbf{Filtro de média nas regiões homogêneas:} preservação da média e a redução do desvio padrão.
+		\item \textbf{Filtro identidade nas bordas:} Pratt's \textit{Figure of Merit} (\textit{FOM}) \cite{PRATT}.
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Medição da Eficácia}}
+
+\begin{eqnarray} \label{eq:weight_final}
+FOM=\frac{1}{max\{\hat{N},N_{ideal}\}} \sum_{i=1}^{\hat{N}}\frac{1}{1+d_i^2\alpha}
+\end{eqnarray}
+
+Detector de bordas Canny \cite{CANNY} ($\sigma=0,1$).
+
+Na prática, o valor do \textit{FOM} pode variar de 0 a 1, sendo 1 o valor para o \textit{padrão ouro}.
+
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+\subsection{Imagens de Teste}
+% ---------------------------------------------------------------------------- %
+
+\begin{frame} 
+\frametitle{\textbf{Imagens de Teste}}
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_gold.png}
+		\caption{Padrão ouro}
+		\label{fig:test1_gold}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_orig.png}
+		\caption{Ruído \textit{speckle}}
+		\label{fig:test1_orig}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_filtered.png}
+		\caption{Filtrada}
+		\label{fig:test1_filtered}
+	\end{subfigure}
+	\caption{Imagem de teste 1, com figuras geométricas e ruído do tipo \textit{speckle}}
+\end{figure}
+\end{frame}
+
+
+\begin{frame} 
+\frametitle{\textbf{Imagens de Teste}}
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_gold.png}
+		\caption{Padrão ouro}
+		\label{fig:test2_gold}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_orig.png}
+		\caption{Ruído Gaussiano}
+		\label{fig:test2_orig}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_filtered.png}
+		\caption{Filtrada}
+		\label{fig:test2_filtered}
+	\end{subfigure}
+	\caption{Imagem de teste 2, com cistos e ruído do tipo Gaussiano de 10dB}
+\end{figure}
+\end{frame}
+
+
+\begin{frame} 
+\frametitle{\textbf{Imagens de Teste}}
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_gold.png}
+		\caption{Padrão ouro}
+		\label{fig:test3_gold}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_orig.png}
+		\caption{Ruído \textit{speckle}}
+		\label{fig:test3_orig}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_filtered.png}
+		\caption{Filtrada}
+		\label{fig:test3_filtered}
+	\end{subfigure}
+	\caption{Imagem de teste 3, com cistos e ruído do tipo \textit{speckle}}
+\end{figure}
+\end{frame}
+
+% ---------------------------------------------------------------------------- %
+\section{Resultados}
+% ---------------------------------------------------------------------------- %
+
+\begin{frame} 
+\frametitle{\textbf{Resultados}}
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_orig_edges.png}
+		\caption{ }
+		\label{fig:test1_orig_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_gold_edges.png}
+		\caption{ }
+		\label{fig:test1_gold_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test1_gold_dist.png}
+		\caption{ }
+		\label{fig:test1_gold_dist}
+	\end{subfigure}
+	\caption{Teste 1; (a) e (b) são resultados do detector de bordas Canny aplicado à imagem filtrada e padrão ouro, respectivamente. (c) é a transformada da distância de (b), usada no cálculo do \textit{FOM} }
+	\label{fig:test1_edges}
+\end{figure}
+\end{frame}
+
+
+\begin{frame} 
+\frametitle{\textbf{Resultados}}
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_orig_edges.png}
+		\caption{ }
+		\label{fig:test2_orig_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test3_orig_edges.png}
+		\caption{ }
+		\label{fig:test3_orig_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_gold_edges.png}
+		\caption{ }
+		\label{fig:test2_gold_edges}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.2\textwidth}
+		\centering
+		\includegraphics[width=1\textwidth]{test2_gold_dist.png}
+		\caption{ }
+		\label{fig:test2_gold_dist}
+	\end{subfigure}
+	\caption{Testes 2 e 3; (a) e (b) são resultados do detector de bordas Canny aplicado às imagens filtradas \ref{fig:test2_filtered} e \ref{fig:test3_filtered}, respectivamente. (c) é Canny aplicado ao padrão ouro de ambos os testes. (d) é a transformada da distância de (c), usada no cálculo do \textit{FOM}}
+	\label{fig:test23_edges}
+\end{figure}
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Resultados}}
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{cl|c|ccc}
+\hline
+\multicolumn{2}{c|}{Imagem} & $C_u$ & \multicolumn{3}{c}{Área I} \\
+\multicolumn{2}{c|}{ }      &  { }  & Média & Desvio Padrão & $C_i$ \\
+\hline
+\hline
+\ref{fig:test1_orig}     & com ruído & \multirow{2}{*}{0,090} & 77,10 & 10,23 & 0,133 \\
+\ref{fig:test1_filtered} & filtrada  &          { }           & 72,07 & 6,63  & 0,092 \\
+\hline
+\hline
+\ref{fig:test2_orig}     & com ruído & \multirow{2}{*}{0,045} & 96,99 & 3,80 & 0,039 \\
+\ref{fig:test2_filtered} & filtrada  &          { }           & 97,70 & 0,92 & 0,009 \\
+\hline
+\hline
+\ref{fig:test3_orig}     & com ruído & \multirow{2}{*}{0,200} & 87,92 & 20,17 & 0,229 \\
+\ref{fig:test3_filtered} & filtrada  &          { }           & 95,32 & 12,84 & 0,135 \\
+\hline
+\hline
+\end{tabular}
+\caption{Média e desvio padrão antes e após o filtro de Kuan}
+\label{tab:media}
+\end{center}
+\end{table}
+\end{frame}
+
+
+\begin{frame} 
+\frametitle{\textbf{Resultados}}
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{cl|c|ccc}
+\hline
+\multicolumn{2}{c|}{Imagem} & $C_u$ & \multicolumn{3}{|c}{Área II} \\
+\multicolumn{2}{c|}{ }      &  { }  & Média & Desvio Padrão & $C_i$ \\
+\hline
+\hline
+\ref{fig:test1_orig}     & com ruído & \multirow{2}{*}{0,090} & 110,78 & 10,21 & 0,092 \\
+\ref{fig:test1_filtered} & filtrada  &          { }           & 107,87 & 4,40  & 0,041  \\
+\hline
+\hline
+\ref{fig:test2_orig}     & com ruído & \multirow{2}{*}{0,045} & 19,79 & 3,87 & 0,195 \\
+\ref{fig:test2_filtered} & filtrada  &          { }           & 19,73 & 3,79 & 0,192 \\
+\hline
+\hline
+\ref{fig:test3_orig}     & com ruído & \multirow{2}{*}{0,200} & 138,11 & 16,24 & 0,118 \\
+\ref{fig:test3_filtered} & filtrada  &          { }           & 149,30 & 10,61 & 0,071 \\
+\hline
+\hline
+\end{tabular}
+\caption{Média e desvio padrão antes e após o filtro de Kuan}
+\label{tab:media}
+\end{center}
+\end{table}
+\end{frame}
+
+\begin{frame} 
+\frametitle{\textbf{Resultados}}
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{c|c|c}
+\hline
+Imagem & \textit{FOM} com ruído & \textit{FOM} filtrada \\
+\hline
+\hline
+Teste 1 & 0.1766 & 0.3481 \\ \hline
+Teste 2 & 0.0430 & 0.4453 \\ \hline
+Teste 3 & 0.0462 & 0.0735 \\ \hline
+\end{tabular}
+\caption{Valores do \textit{FOM} antes e após a filtragem}
+\label{tab:fom}
+\end{center}
+\end{table}
+\end{frame}
+
+\begin{thebibliography}{}
+
+\begin{frame}
+\frametitle{Bibliografia}
+ 
+\bibitem{KUAN}
+D. T. Kuan, A. A. Sawchuk, T. C. Strand, P. Chavel, {\em Adaptive Noise Smoothing Filter for Images with Signal-Dependent Noise}, IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol. 7, No. 2, (1985)
+ 
+\bibitem{PRATT}
+W. K. Pratt, {\em Digital Image Processing}, Nova Iorque, Wiley, (1977)
+
+\bibitem{YU}
+Y. Yu and S. T. Acton, {\em Speckle Reducing Anisotropic Diffusion}, IEEE Transactions on Image Processing, Vol. 11, No. 11, (2002)
+
+\bibitem{IPYTHON}
+F. Pérez, B. E. Granger, {\em IPython: A System for Interactive Scientific Computing}, Computing in Science and Engineering, Vol. 9, No. 3, (2007)
+\end{frame}
+
+\begin{frame}
+\frametitle{Bibliografia}
+
+\bibitem{SCIPY}
+E. Jones, T. Oliphant, P. Peterson \textit{et al.}, {\em SciPy: Open Source Scientific Tools for Python}, (2001)
+
+\bibitem{NUMPY}
+T. Oliphant \textit{et al.}, {\em Python for Scientific Computing}, Computing in Science and Engineering, Vol. 9, No. 3, (2007)
+
+\bibitem{CANNY}
+J. Canny, {\em A computational approach to edge detection}, IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol. 8, (1986)
+\end{frame}
+
+\end{thebibliography}
+
+
+
+
+% ---------------------------------------------------------------------------- %
+{%\usebackgroundtemplate{}} 
+\begin{frame}[plain]
+	\begin{columns}[c]
+		\column{0.2\textwidth}
+			\hspace*{+0.5em}
+			\includegraphics[height=7.90cm]{rede.jpg}
+		\column{0.01\textwidth}
+		\column{0.70\textwidth}
+			\titlepage
+	\end{columns}
+	\addtocounter{framenumber}{-1}
+\end{frame}
+}
+
+\end{document}
+

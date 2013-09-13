@@ -113,7 +113,7 @@ v_{f}(i,j)=v_{g}(i,j)-\sigma_{n}^{2}(i,j)
 A equação geral para o filtro foi mostrada em \ref{eq:llmmsq}, porém para ruídos multiplicativos a estimação $\hat{f}$ é representada da seguinte forma:
 
 \begin{eqnarray} \label{eq:llmmsemult}
-\hat{f}(i,j)=\bar{f}(i,j)+\frac{v_{f}(i,j)}{v_{f}(i,j)+\frac{\sigma_{u}^{2}}{E(u)}[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}(g(i,j)-\bar{f}(i,j))
+\hat{f}(i,j)=\bar{f}(i,j)+\frac{v_{f}(i,j)}{v_{f}(i,j)+\frac{\sigma_{u}^{2}}{(E(u))^2}[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}(g(i,j)-\bar{f}(i,j))
 \end{eqnarray}
 
 Aqui, $u$ é o ruido multiplicativo cuja média e variância são estacionárias. Com $v_{f}$ dada por:
@@ -141,33 +141,33 @@ w(i,j)=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}
 $C_u$ é o coeficiente de variação do ruído, que aqui assumimos ser estacionário, e portanto pode ser facilmente estimado com o cálculo da seguinte equação em uma região homogênea da imagem:
 
 \begin{eqnarray}
-C_u=\frac{\sigma_{u}^{2}}{E(u)}
+C_u^2=(\frac{\sigma_{u}}{E(u)})^2
 \end{eqnarray}
 
-Sendo assim, podemos reescrever \ref{eq:llmmsemult_v} substituindo $\frac{\sigma_{u}^{2}}{E(u)}$ por $C_u$:
+Sendo assim, podemos reescrever \ref{eq:llmmsemult_v} substituindo $(\frac{\sigma_{u}}{E(u)})^2$ por $C_u^2$:
 
 \begin{eqnarray} \label{eq:llmmsemult_v2}
-v_{f}(i,j)=\frac{\sigma_{g}^{2}(i,j)-C_uE(g(i,j))^{2}}{1+C_u} \nonumber \\
-=\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u} 
+v_{f}(i,j)=\frac{\sigma_{g}^{2}(i,j)-C_u^2 E(g(i,j))^{2}}{1+C_u^2} \nonumber \\
+=\frac{\sigma_{g}^{2}(i,j)-C_u^2(\bar{g}(i,j))^{2}}{1+C_u^2} 
 \end{eqnarray}
 
 Substituindo \ref{eq:llmmsemult_v2} em \ref{eq:llmmsemult_w} e assumindo $\bar{f}=\bar{g}$ teremos:
 
 \begin{eqnarray} \label{eq:llmmsemult_w2}
-w(i,j)=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}
-=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u(\bar{g}(i,j))^{2}+C_uv_{f}(i,j)} \nonumber \\
-=[\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u}] . [\frac{1}{\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u}(1+C_u)+C_u(\bar{g}(i,j))^{2}}] \nonumber\\
-=[\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{1+C_u}] . [\frac{1}{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}+C_u(\bar{g}(i,j))^{2}}] \nonumber \\
-=\frac{\sigma_{g}^{2}(i,j)-C_u(\bar{g}(i,j))^{2}}{(1+C_u)\sigma_{g}^{2}(i,j)} \nonumber
-=\frac{\sigma_{g}^{2}(i,j)}{(1+C_u)\sigma_{g}^{2}(i,j)} - \frac{C_u(\bar{g}(i,j))^{2}}{(1+C_u)\sigma_{g}^{2}(i,j)} \nonumber \\
-=\frac{1}{1+C_u} - \frac{C_u(\frac{\bar{g}(i,j)}{\sigma_{g}})^{2}}{1+C_u} \nonumber \\
-=\frac{1 - C_u(\frac{\bar{g}(i,j)}{\sigma_{g}})^{2}}{1+C_u}
+w(i,j)=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u^2[(\bar{f}(i,j))^{2}+v_{f}(i,j)]}
+=\frac{v_{f}(i,j)}{v_{f}(i,j)+C_u^2(\bar{g}(i,j))^{2}+C_u^2v_{f}(i,j)} \nonumber \\
+=[\frac{\sigma_{g}^{2}(i,j)-C_u^2(\bar{g}(i,j))^{2}}{1+C_u^2}] . [\frac{1}{\frac{\sigma_{g}^{2}(i,j)-C_u^2(\bar{g}(i,j))^{2}}{1+C_u^2}(1+C_u^2)+C_u^2(\bar{g}(i,j))^{2}}] \nonumber\\
+=[\frac{\sigma_{g}^{2}(i,j)-C_u^2(\bar{g}(i,j))^{2}}{1+C_u^2}] . [\frac{1}{\sigma_{g}^{2}(i,j)-C_u^2(\bar{g}(i,j))^{2}+C_u^2(\bar{g}(i,j))^{2}}] \nonumber \\
+=\frac{\sigma_{g}^{2}(i,j)-C_u^2(\bar{g}(i,j))^{2}}{(1+C_u^2)\sigma_{g}^{2}(i,j)} \nonumber
+=\frac{\sigma_{g}^{2}(i,j)}{(1+C_u^2)\sigma_{g}^{2}(i,j)} - \frac{C_u^2(\bar{g}(i,j))^{2}}{(1+C_u^2)\sigma_{g}^{2}(i,j)} \nonumber \\
+=\frac{1}{1+C_u^2} - \frac{C_u^2(\frac{\bar{g}(i,j)}{\sigma_{g}})^{2}}{1+C_u^2} \nonumber \\
+=\frac{1 - C_u^2(\frac{\bar{g}(i,j)}{\sigma_{g}})^{2}}{1+C_u^2}
 \end{eqnarray}
 
-Fazendo $C_i(i,j)=\frac{\sigma_x(i,j)}{\bar{g}(i,j))}$ e substituindo em \ref{eq:llmmsemult_w2}, temos:
+Fazendo $C_i^2(i,j)=\frac{\sigma_x(i,j)}{\bar{g}(i,j))}$ e substituindo em \ref{eq:llmmsemult_w2}, temos:
 
 \begin{eqnarray} \label{eq:weight_final}
-w(i,j)=\frac{1-\frac{C_u}{C_i}}{1+C_u}
+w(i,j)=\frac{1-\frac{C_u^2}{C_i^2}}{1+C_u^2}
 \end{eqnarray}
 
 \section{Implementação e Testes}
@@ -340,7 +340,7 @@ Aplicou-se um ruído \textit{speckle} às imagens \ref{fig:test1_gold} e \ref{fig:
 	\caption{Imagem de teste 3, com cistos e ruído do tipo \textit{speckle}}
 \end{figure}
 
-\section{Resultados}
+\section{Resultados e Discussão}
 
 \subsection{Média e Desvio Padrão}
 
@@ -467,6 +467,7 @@ Após a discussão sobre a implementação do filtro e os critérios de avaliação de 
 
 \begin{itemize}
   \item A escolha de um bom valor de $C_u$ é fundamental.
+  \item Não há forma automática de se escolher $C_u$.
   \item Conhecer o tipo de ruído é essencial para obter resultados ótimos.
 \end{itemize}
 

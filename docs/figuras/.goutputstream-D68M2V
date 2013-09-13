@@ -1,0 +1,90 @@
+[PARAMETRO]  global-nome_do_grupo  =  Teste do scriptLattes
+[PARAMETRO]  global-arquivo_de_entrada  =  ./exemplo/teste.list
+[PARAMETRO]  global-diretorio_de_saida  =  ./exemplo/teste/
+[PARAMETRO]  global-email_do_admin  =  jmena@vision.ime.usp.br
+[PARAMETRO]  global-idioma  =  PT
+[PARAMETRO]  global-itens_desde_o_ano  =  2006
+[PARAMETRO]  global-itens_ate_o_ano  =  2010
+[PARAMETRO]  global-itens_por_pagina  =  1000
+[PARAMETRO]  global-criar_paginas_jsp  =  nao
+[PARAMETRO]  global-google_analytics_key  =  UA-5266248-1
+[PARAMETRO]  global-prefixo  =  
+[PARAMETRO]  relatorio-salvar_publicacoes_em_formato_ris  =  nao
+[PARAMETRO]  relatorio-incluir_artigo_em_periodico  =  sim
+[PARAMETRO]  relatorio-incluir_livro_publicado  =  sim
+[PARAMETRO]  relatorio-incluir_capitulo_de_livro_publicado  =  sim
+[PARAMETRO]  relatorio-incluir_texto_em_jornal_de_noticia  =  sim
+[PARAMETRO]  relatorio-incluir_trabalho_completo_em_congresso  =  sim
+[PARAMETRO]  relatorio-incluir_resumo_expandido_em_congresso  =  sim
+[PARAMETRO]  relatorio-incluir_resumo_em_congresso  =  sim
+[PARAMETRO]  relatorio-incluir_artigo_aceito_para_publicacao  =  sim
+[PARAMETRO]  relatorio-incluir_apresentacao_de_trabalho  =  sim
+[PARAMETRO]  relatorio-incluir_outro_tipo_de_producao_bibliografica  =  sim
+[PARAMETRO]  relatorio-incluir_software_com_patente  =  sim
+[PARAMETRO]  relatorio-incluir_software_sem_patente  =  sim
+[PARAMETRO]  relatorio-incluir_produto_tecnologico  =  sim
+[PARAMETRO]  relatorio-incluir_processo_ou_tecnica  =  sim
+[PARAMETRO]  relatorio-incluir_trabalho_tecnico  =  sim
+[PARAMETRO]  relatorio-incluir_outro_tipo_de_producao_tecnica  =  sim
+[PARAMETRO]  relatorio-incluir_producao_artistica  =  sim
+[PARAMETRO]  relatorio-mostrar_orientacoes  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_em_andamento_pos_doutorado  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_em_andamento_doutorado  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_em_andamento_mestrado  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_em_andamento_monografia_de_especializacao  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_em_andamento_tcc  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_em_andamento_iniciacao_cientifica  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_em_andamento_outro_tipo  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_concluida_pos_doutorado  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_concluida_doutorado  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_concluida_mestrado  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_concluida_monografia_de_especializacao  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_concluida_tcc  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_concluida_iniciacao_cientifica  =  sim
+[PARAMETRO]  relatorio-incluir_orientacao_concluida_outro_tipo  =  sim
+[PARAMETRO]  relatorio-incluir_projeto  =  nao
+[PARAMETRO]  relatorio-incluir_premio  =  nao
+[PARAMETRO]  grafo-mostrar_grafo_de_colaboracoes  =  sim
+[PARAMETRO]  grafo-mostrar_todos_os_nos_do_grafo  =  sim
+[PARAMETRO]  grafo-considerar_rotulos_dos_membros_do_grupo  =  nao
+[PARAMETRO]  grafo-mostrar_aresta_proporcional_ao_numero_de_colaboracoes  =  sim
+[PARAMETRO]  grafo-incluir_artigo_em_periodico  =  sim
+[PARAMETRO]  grafo-incluir_livro_publicado  =  sim
+[PARAMETRO]  grafo-incluir_capitulo_de_livro_publicado  =  sim
+[PARAMETRO]  grafo-incluir_texto_em_jornal_de_noticia  =  sim
+[PARAMETRO]  grafo-incluir_trabalho_completo_em_congresso  =  sim
+[PARAMETRO]  grafo-incluir_resumo_expandido_em_congresso  =  sim
+[PARAMETRO]  grafo-incluir_resumo_em_congresso  =  sim
+[PARAMETRO]  grafo-incluir_artigo_aceito_para_publicacao  =  sim
+[PARAMETRO]  grafo-incluir_apresentacao_de_trabalho  =  sim
+[PARAMETRO]  grafo-incluir_outro_tipo_de_producao_bibliografica  =  sim
+[PARAMETRO]  grafo-incluir_software_com_patente  =  sim
+[PARAMETRO]  grafo-incluir_software_sem_patente  =  sim
+[PARAMETRO]  grafo-incluir_produto_tecnologico  =  sim
+[PARAMETRO]  grafo-incluir_processo_ou_tecnica  =  sim
+[PARAMETRO]  grafo-incluir_trabalho_tecnico  =  sim
+[PARAMETRO]  grafo-incluir_outro_tipo_de_producao_tecnica  =  sim
+[PARAMETRO]  grafo-incluir_producao_artistica  =  sim
+[PARAMETRO]  grafo-incluir_grau_de_colaboracao  =  sim
+[PARAMETRO]  mapa-mostrar_mapa_de_geolocalizacao  =  sim
+[PARAMETRO]  mapa-incluir_membros_do_grupo  =  sim
+[PARAMETRO]  mapa-incluir_alunos_de_pos_doutorado  =  sim
+[PARAMETRO]  mapa-incluir_alunos_de_doutorado  =  sim
+[PARAMETRO]  mapa-incluir_alunos_de_mestrado  =  sim
+[PARAMETRO]  mapa-google_map_key  =  ABQIAAAALXTx88XUBA-1w02lBis80BTEHToUZkKVRLypIyHkBnKhXbuctBRuwSSicgP4FlkgCvGVHHbSBa-pZg
+
+[ROTULO]  [sem rotulo]
+
+======================================================================
++ ID-MEMBRO   : 0
++ ROTULO      : [sem rotulo]
++ NOME REAL   : Roberto Marcondes Cesar Junior
++ SEXO        : Masculino
++ NOME Cits.  : CESAR JUNIOR, R. M.;Cesar, R.M.;Cesar, Roberto M.;CESARJR, R;Cesar Jr., Roberto M.;Cesar Junior, Roberto Marcondes;Cesar Jr., R.M.
++ PERIODO     : 
++ BOLSA Prod. : Nível 1B
++ ENDERECO    : Universidade de São Paulo, Instituto de Matemática e Estatística, Departamento de Ciência da Computação. Rua do Matão 1010 Cidade Universitária 05508090 - Sao Paulo, SP - Brasil Telefone: (11) 30916135 Ramal: 6235 Fax: (11) 30916134 URL da Homepage: http://www.ime.usp.br/~cesar/
++ URL         : http://lattes.cnpq.br/2240951178648368
++ ATUALIZACAO : 09/03/2011
++ FOTO        : http://buscatextual.cnpq.br/buscatextual/servletrecuperafoto?id=K4799759H4
++ RESUMO      : Professor Titular da Universidade de S
